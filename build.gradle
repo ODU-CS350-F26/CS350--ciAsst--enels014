@@ -1,13 +1,13 @@
+
 plugins {
-   id 'java'
-   id 'application'
-   id 'org.ajoberstar.git-publish' version '4.2.0'
+    id 'java'
+    id 'application'
+    id 'org.ajoberstar.git-publish' version '4.2.0'
 }
 
 repositories {
     mavenCentral()
 }
-
 
 java {
     sourceCompatibility = JavaVersion.toVersion(17)
@@ -17,28 +17,50 @@ java {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.7.0'
 }
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
     ignoreFailures = true
+
     testLogging {
         events "passed", "skipped", "failed"
-        }
+    }
 }
 
-application { //Allows  ./gradlew run --args=path-to-test-data
+application {
     mainClass = 'edu.odu.cs.MostCommonWords'
 }
 
-tasks.register('reports', Copy) {
-    dependsOn build, javadoc
-
-    into layout.buildDirectory.dir('reports')
-
-    from('src/main/html')
-
-    from(layout.buildDirectory.dir('docs'))
+tasks.register("copyHtml", Copy) {
+    from 'src/main/html'
+    into "build/reports"
 }
 
+tasks.register("copyDoc", Copy) {
+    dependsOn javadoc
+    from 'build/docs'
+    into "build/reports"
+}
+
+tasks.register("reports") {
+    dependsOn build, copyHtml, copyDoc
+}
+
+gitPublish {
+    repoUri = 'git@github.com:ODU-CS350-F26/CS350--ciAsst--enels014.git'
+    branch = 'gh-pages'
+
+    contents {
+        from 'build/reports'
+    }
+}
+
+tasks.named('gitPublishCopy') {
+    dependsOn 'reports'
+}
+
+tasks.register('deployReports') {
+    dependsOn 'gitPublishPush'
+}
