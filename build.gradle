@@ -32,3 +32,13 @@ application { //Allows  ./gradlew run --args=path-to-test-data
     mainClass = 'edu.odu.cs.MostCommonWords'
 }
 
+tasks.register('reports', Copy) {
+    dependsOn build, javadoc
+
+    into layout.buildDirectory.dir('reports')
+
+    from('src/main/html')
+
+    from(layout.buildDirectory.dir('docs'))
+}
+
