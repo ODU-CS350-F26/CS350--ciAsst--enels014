@@ -30,6 +30,24 @@ jobs:
       - name: Generate reports
         run: ./gradlew reports
 
+      - name: Create website homepage
+        run: |
+          cat > build/reports/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>CS350 Reports</title>
+          </head>
+          <body>
+            <h1>CS350 Project Reports</h1>
+            <ul>
+              <li><a href="tests/test/index.html">JUnit Test Reports</a></li>
+              <li><a href="javadoc/index.html">Javadoc</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
+
       - name: Deploy reports to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
